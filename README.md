@@ -14,11 +14,17 @@ The following **required** functionality is completed:
 * [x] User can **tap a todo item in the list and bring up an edit screen for the todo item** and then have any changes to the text reflected in the todo list.
 * [x] User can **persist todo items** and retrieve them properly on app restart
 
+The following **additional** features are implemented:
+
+* [x] Checkboxes! User can **check off (and delete) an item by checking its checkbox**
+* [x] User gets one of many **congratulations toasts when checking off an item**
+* [x] User can **enter items with the first letter capitalized without having to tap shift first**
+
 ## Video Walkthrough 
 
 Here's a walkthrough of implemented user stories:
 
-<img src='http://tachyonlabs.com/miscimages/simple_todo.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
+<img src='http://tachyonlabs.com/miscimages/simple_todo2.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
 
 GIF created with [LiceCap](http://www.cockos.com/licecap/).
 
