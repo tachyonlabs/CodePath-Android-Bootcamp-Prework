@@ -142,18 +142,16 @@ public class TodoItemsDatabaseHelper extends SQLiteOpenHelper {
     }
 
     // Delete an item from the database
-    public int deleteItem(Item item) {
+    public void deleteItem(Item item) {
         SQLiteDatabase db = this.getWritableDatabase();
-        int result = 0;
         db.beginTransaction();
         try {
-            result = db.delete(TABLE_ITEMS, KEY_ITEM_TEXT + " = ?", new String[] { item.text});
+            db.delete(TABLE_ITEMS, KEY_ITEM_TEXT + " = ?", new String[] { item.text});
             db.setTransactionSuccessful();
         } catch (Exception e) {
             Log.d(TAG, "Error while trying to delete an item");
         } finally {
             db.endTransaction();
-            return result;
         }
     }
 
