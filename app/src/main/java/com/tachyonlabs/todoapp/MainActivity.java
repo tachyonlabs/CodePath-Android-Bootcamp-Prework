@@ -17,10 +17,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.apache.commons.io.FileUtils;
-
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -43,12 +39,14 @@ public class MainActivity extends AppCompatActivity {
         lvItems.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                // long-clicking an item deletes it
                 // display a congratulations toast for completing a todolist item
                 aToastToYou();
-                // long-clicking an item deletes it
+                // delete it from the database
+                deleteItem(todoItems.get(position));
+                // and from the ArrayList/screen
                 todoItems.remove(position);
                 aTodoAdapter.notifyDataSetChanged();
-                writeItems();
                 return true;
             }
         });
@@ -62,7 +60,6 @@ public class MainActivity extends AppCompatActivity {
                 intent.putExtra("whichItem", position);
                 startActivityForResult(intent, REQUEST_CODE);
             }
-
         });
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -81,29 +78,41 @@ public class MainActivity extends AppCompatActivity {
 
     public void populateArrayItems() {
         readItems();
-        // using my own checkbox and textview layout instead of android.R.layout.simple_list_item_1
+        // using my own checkbox-and-textview layout instead of android.R.layout.simple_list_item_1
         aTodoAdapter = new ArrayAdapter<String>(this, R.layout.row, R.id.tvTodoItem, todoItems);
     }
 
     private void readItems() {
-        File filesDir = getFilesDir();
-        File file = new File(filesDir, "todo.txt");
-        try {
-            todoItems = new ArrayList<String>(FileUtils.readLines(file));
-        } catch (IOException e) {
-            // if todo.txt doesn't already exist
-            todoItems = new ArrayList<String>();
+        // read all the items from the database
+        todoItems = new ArrayList<String>();
+        TodoItemsDatabaseHelper todoDB = TodoItemsDatabaseHelper.getInstance(this);
+        for (Item tempItem : todoDB.getAllItems()) {
+            todoItems.add(tempItem.text);
         }
     }
 
-    private void writeItems() {
-        File filesDir = getFilesDir();
-        File file = new File(filesDir, "todo.txt");
-        try {
-            FileUtils.writeLines(file, todoItems);
-        } catch (IOException e) {
+    private void addItem(String text) {
+        // add a new item to the database
+        TodoItemsDatabaseHelper todoDB = TodoItemsDatabaseHelper.getInstance(this);
+        Item item = new Item();
+        item.text = text;
+        todoDB.addItem(item);
+    }
 
-        }
+    private void updateItem(String oldText, String newText) {
+        // update an item in the database with the edited text
+        TodoItemsDatabaseHelper todoDB = TodoItemsDatabaseHelper.getInstance(this);
+        Item item = new Item();
+        item.text = oldText;
+        todoDB.updateItem(item, newText);
+    }
+
+    private void deleteItem(String text) {
+        // delete an item from the database
+        TodoItemsDatabaseHelper todoDB = TodoItemsDatabaseHelper.getInstance(this);
+        Item item = new Item();
+        item.text = text;
+        todoDB.deleteItem(item);
     }
 
     @Override
@@ -129,9 +138,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onAddItem(View view) {
-        aTodoAdapter.add(etEditText.getText().toString());
+        String itemText = etEditText.getText().toString();
+        aTodoAdapter.add(itemText);
         etEditText.setText("");
-        writeItems();
+        // add the new item to the database
+        addItem(itemText);
     }
 
     @Override
@@ -142,12 +153,14 @@ public class MainActivity extends AppCompatActivity {
             String editedItemText = data.getExtras().getString("todoItemText");
             // and which item was being edited
             int whichItem = data.getExtras().getInt("whichItem", 0);
+            // get the old text
+            String oldText = todoItems.get(whichItem);
             // replace that item's text with the edited text
             todoItems.set(whichItem, editedItemText);
             // notify the adapter that there's been a change
             aTodoAdapter.notifyDataSetChanged();
-            // and persist the change by writing the items to the file
-            writeItems();
+            // and persist the change by writing the items to the database
+            updateItem(oldText, editedItemText);
             // Toast the name to display temporarily on screen
             Toast.makeText(this, editedItemText, Toast.LENGTH_SHORT).show();
         }
