@@ -1,4 +1,4 @@
-package com.tachyonlabs.todoapp;
+package com.tachyonlabs.todoapp.models;
 
 public class Item {
     public String text;

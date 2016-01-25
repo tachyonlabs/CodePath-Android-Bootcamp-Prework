@@ -1,4 +1,4 @@
-package com.tachyonlabs.todoapp;
+package com.tachyonlabs.todoapp.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,6 +16,10 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.tachyonlabs.todoapp.R;
+import com.tachyonlabs.todoapp.models.Item;
+import com.tachyonlabs.todoapp.utils.TodoItemsDatabaseHelper;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -79,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
     public void populateArrayItems() {
         readItems();
         // using my own checkbox-and-textview layout instead of android.R.layout.simple_list_item_1
-        aTodoAdapter = new ArrayAdapter<String>(this, R.layout.row, R.id.tvTodoItem, todoItems);
+        aTodoAdapter = new ArrayAdapter<String>(this, R.layout.activity_main_listview_row, R.id.tvTodoItem, todoItems);
     }
 
     private void readItems() {
