@@ -20,28 +20,25 @@ public class EditItemActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         // put the item text into the EditText widget
         EditText editItem = (EditText) findViewById(R.id.etEditItem);
+        EditText editDate = (EditText) findViewById(R.id.etEditDate);
+        setTitle("Simple Todo - " + getIntent().getStringExtra("addOrEdit") + " Item");
         String textToEdit = getIntent().getStringExtra("todoItemText");
+        String dateToEdit = getIntent().getStringExtra("todoItemDate");
         itemBeingEdited = getIntent().getIntExtra("whichItem", 0);
         editItem.setText(textToEdit);
+        editDate.setText(dateToEdit);
         // set the cursor to the end of the current text value
         editItem.setSelection(textToEdit.length());
 
-//        Commenting out the pink email button
-//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-//            }
-//        });
     }
 
     public void saveEditedItem(View view) {
         EditText editItem = (EditText) findViewById(R.id.etEditItem);
+        EditText editDate = (EditText) findViewById(R.id.etEditDate);
         Intent data = new Intent();
         // send the edited text (and the index of the edited item) back to the main activity
         data.putExtra("todoItemText", editItem.getText().toString());
+        data.putExtra("todoItemDate", editDate.getText().toString());
         data.putExtra("whichItem", itemBeingEdited);
         setResult(RESULT_OK, data); // set result code and bundle data for response
         this.finish();

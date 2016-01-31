@@ -17,10 +17,14 @@ The following **required** functionality is completed:
 The following **optional** features are implemented:
 
 * [x] Persist the todo items [into SQLite](http://guides.codepath.com/android/Persisting-Data-to-the-Device#sqlite) instead of a text file
+* [x] Improve style of the todo items in the list [using a custom adapter](http://guides.codepath.com/android/Using-an-ArrayAdapter-with-ListView)
+* [x] Add support for completion due dates for todo items (and display within listview item)
 
 The following **additional** features are implemented:
 
 * [x] Checkboxes! User can **check off (and delete) an item by checking its checkbox**
+* [x] User can **tap a floating action button to add an item -- less onscreen clutter**
+* [x] Adding and editing items now both use EditItemActivity for consistency and, again, less clutter
 * [x] User gets one of many **congratulations toasts when checking off an item**
 * [x] User can **enter items with the first letter capitalized without having to tap shift first**
 
@@ -28,9 +32,13 @@ The following **additional** features are implemented:
 
 Here's a walkthrough of implemented user stories:
 
-<img src='http://tachyonlabs.com/miscimages/simple_todo2.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
+<img src='http://tachyonlabs.com/miscimages/simple_todo3.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
 
 GIF created with [LiceCap](http://www.cockos.com/licecap/).
+
+## Notes
+
+The next step will be to add a DatePicker instead of using an EditText to enter/edit dates, but I was at a stopping point and wanted to upload my changes.
 
 ## License
 

@@ -1,23 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    android:orientation="horizontal" >
+
     <CheckBox
         android:id="@+id/chkTodoItem"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
         android:text=""
-        android:buttonTint="#515dae"
+        android:layout_marginRight="10dp"
         android:focusable="false"
         android:onClick="checkBoxClick" />
-    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+
+    <TextView
         android:id="@+id/tvTodoItem"
-        android:layout_width="match_parent"
+        android:text="Dummy text"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceListItemSmall"
-        android:gravity="center_vertical"
-        android:paddingStart="?android:attr/listPreferredItemPaddingStart"
-        android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
-        android:minHeight="?android:attr/listPreferredItemHeightSmall" />
-</LinearLayout>
+        android:layout_marginTop="2dp"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@+id/chkTodoItem" />
+
+    <TextView
+        android:id="@+id/tvTodoItemDate"
+        android:text="Dummy date Sat Jan 30"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="6dp"
+        android:layout_toRightOf="@+id/chkTodoItem"
+        android:layout_below="@id/tvTodoItem" />
+
+</RelativeLayout>

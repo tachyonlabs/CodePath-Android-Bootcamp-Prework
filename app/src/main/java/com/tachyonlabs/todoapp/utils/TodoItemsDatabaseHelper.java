@@ -26,6 +26,7 @@ public class TodoItemsDatabaseHelper extends SQLiteOpenHelper {
     // Item Table Columns
     private static final String KEY_ITEM_ID = "id";
     private static final String KEY_ITEM_TEXT = "text";
+    private static final String KEY_ITEM_DATE = "date";
 
     private static TodoItemsDatabaseHelper sInstance;
 
@@ -62,7 +63,8 @@ public class TodoItemsDatabaseHelper extends SQLiteOpenHelper {
         String CREATE_ITEMS_TABLE = "CREATE TABLE " + TABLE_ITEMS +
                 "(" +
                 KEY_ITEM_ID + " INTEGER PRIMARY KEY," + // Define a primary key
-                KEY_ITEM_TEXT + " TEXT" +
+                KEY_ITEM_TEXT + " TEXT," +
+                KEY_ITEM_DATE + " DATE" +
                 ")";
 
         db.execSQL(CREATE_ITEMS_TABLE);
@@ -91,6 +93,7 @@ public class TodoItemsDatabaseHelper extends SQLiteOpenHelper {
         try {
             ContentValues values = new ContentValues();
             values.put(KEY_ITEM_TEXT, item.text);
+            values.put(KEY_ITEM_DATE, item.date);
 
             // Notice how we haven't specified the primary key. SQLite auto increments the primary key column.
             db.insertOrThrow(TABLE_ITEMS, null, values);
@@ -108,7 +111,7 @@ public class TodoItemsDatabaseHelper extends SQLiteOpenHelper {
 
         // SELECT * FROM ITEMS
         String ITEMS_SELECT_QUERY =
-                String.format("SELECT * FROM %s",
+                String.format("SELECT * FROM %s ORDER by date",
                         TABLE_ITEMS);
 
         // "getReadableDatabase()" and "getWriteableDatabase()" return the same object (except under low
@@ -120,6 +123,7 @@ public class TodoItemsDatabaseHelper extends SQLiteOpenHelper {
                 do {
                     Item newItem = new Item();
                     newItem.text = cursor.getString(cursor.getColumnIndex(KEY_ITEM_TEXT));
+                    newItem.date = cursor.getString(cursor.getColumnIndex(KEY_ITEM_DATE));
                     items.add(newItem);
                 } while (cursor.moveToNext());
             }
@@ -133,16 +137,17 @@ public class TodoItemsDatabaseHelper extends SQLiteOpenHelper {
         return items;
     }
 
-    // Update an item in the database when text has been edited
-    public int updateItem(Item item, String newText) {
+    // Update an item in the database when text and/or date has been edited
+    public int updateItem(Item item, String oldText) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(KEY_ITEM_TEXT, newText);
+        values.put(KEY_ITEM_TEXT, item.text);
+        values.put(KEY_ITEM_DATE, item.date);
 
         // Updating item text
         return db.update(TABLE_ITEMS, values, KEY_ITEM_TEXT + " = ?",
-                new String[]{String.valueOf(item.text)});
+                new String[]{String.valueOf(oldText)});
     }
 
     // Delete an item from the database

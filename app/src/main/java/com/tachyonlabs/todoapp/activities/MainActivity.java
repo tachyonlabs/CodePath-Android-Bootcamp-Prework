@@ -3,21 +3,22 @@ package com.tachyonlabs.todoapp.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
-import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.tachyonlabs.todoapp.R;
+import com.tachyonlabs.todoapp.adapters.ItemsAdapter;
 import com.tachyonlabs.todoapp.models.Item;
 import com.tachyonlabs.todoapp.utils.TodoItemsDatabaseHelper;
 
@@ -25,21 +26,18 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
-    ArrayList<String> todoItems;
-    ArrayAdapter<String> aTodoAdapter;
+    ArrayList<Item> todoItems;
+    ItemsAdapter aTodoAdapter;
     ListView lvItems;
-    EditText etEditText;
     private final int REQUEST_CODE = 20;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d("Here", "here");
         setContentView(R.layout.activity_main);
         populateArrayItems();
         lvItems = (ListView) findViewById(R.id.lvItems);
         lvItems.setAdapter(aTodoAdapter);
-        etEditText = (EditText) findViewById(R.id.etEditText);
-
         lvItems.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
@@ -60,8 +58,11 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                 // clicking an item brings up an editing screen
                 Intent intent = new Intent(MainActivity.this, EditItemActivity.class);
-                intent.putExtra("todoItemText", todoItems.get(position));
+                intent.putExtra("addOrEdit", "Edit");
+                intent.putExtra("todoItemText", todoItems.get(position).text);
                 intent.putExtra("whichItem", position);
+                intent.putExtra("todoItemDate", todoItems.get(position).date);
+
                 startActivityForResult(intent, REQUEST_CODE);
             }
         });
@@ -69,53 +70,51 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-//        Commenting out the pink email button
-//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fabAdd);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
 //                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
 //                        .setAction("Action", null).show();
-//            }
-//        });
+                Intent intent = new Intent(MainActivity.this, EditItemActivity.class);
+                intent.putExtra("addOrEdit", "Add");
+                intent.putExtra("todoItemText", "");
+                intent.putExtra("todoItemDate", "");
+                intent.putExtra("whichItem", -1);
+                startActivityForResult(intent, REQUEST_CODE);
+            }
+        });
     }
 
     public void populateArrayItems() {
         readItems();
-        // using my own checkbox-and-textview layout instead of android.R.layout.simple_list_item_1
-        aTodoAdapter = new ArrayAdapter<String>(this, R.layout.activity_main_listview_row, R.id.tvTodoItem, todoItems);
+        aTodoAdapter = new ItemsAdapter(this, todoItems);
     }
 
     private void readItems() {
         // read all the items from the database
-        todoItems = new ArrayList<String>();
+        todoItems = new ArrayList<Item>();
         TodoItemsDatabaseHelper todoDB = TodoItemsDatabaseHelper.getInstance(this);
-        for (Item tempItem : todoDB.getAllItems()) {
-            todoItems.add(tempItem.text);
+        for (Item item : todoDB.getAllItems()) {
+            todoItems.add(item);
         }
     }
 
-    private void addItem(String text) {
+    private void addItem(Item item) {
         // add a new item to the database
         TodoItemsDatabaseHelper todoDB = TodoItemsDatabaseHelper.getInstance(this);
-        Item item = new Item();
-        item.text = text;
         todoDB.addItem(item);
     }
 
-    private void updateItem(String oldText, String newText) {
-        // update an item in the database with the edited text
+    private void updateItem(Item item, String oldText) {
+        // update an item in the database
         TodoItemsDatabaseHelper todoDB = TodoItemsDatabaseHelper.getInstance(this);
-        Item item = new Item();
-        item.text = oldText;
-        todoDB.updateItem(item, newText);
+        todoDB.updateItem(item, oldText);
     }
 
-    private void deleteItem(String text) {
+    private void deleteItem(Item item) {
         // delete an item from the database
         TodoItemsDatabaseHelper todoDB = TodoItemsDatabaseHelper.getInstance(this);
-        Item item = new Item();
-        item.text = text;
         todoDB.deleteItem(item);
     }
 
@@ -141,32 +140,36 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void onAddItem(View view) {
-        String itemText = etEditText.getText().toString();
-        aTodoAdapter.add(itemText);
-        etEditText.setText("");
-        // add the new item to the database
-        addItem(itemText);
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // REQUEST_CODE is defined above
         if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
-            // Get the edited text
-            String editedItemText = data.getExtras().getString("todoItemText");
-            // and which item was being edited
+            Item item = new Item();
+            // Get the new or edited date
+            item.date = data.getExtras().getString("todoItemDate");
+            // and which item was being edited (or -1 to indicate a new item being added)
             int whichItem = data.getExtras().getInt("whichItem", 0);
-            // get the old text
-            String oldText = todoItems.get(whichItem);
-            // replace that item's text with the edited text
-            todoItems.set(whichItem, editedItemText);
-            // notify the adapter that there's been a change
-            aTodoAdapter.notifyDataSetChanged();
-            // and persist the change by writing the items to the database
-            updateItem(oldText, editedItemText);
-            // Toast the name to display temporarily on screen
-            Toast.makeText(this, editedItemText, Toast.LENGTH_SHORT).show();
+
+            if (whichItem != -1) {
+                // if we're editing an existing item rather than adding a new one
+                // get the old text
+                String oldText = todoItems.get(whichItem).text;
+                // and the edited text
+                item.text = data.getExtras().getString("todoItemText");
+                // update the listview
+                todoItems.set(whichItem, item);
+                // notify the adapter that there's been a change
+                aTodoAdapter.notifyDataSetChanged();
+                // and persist the change by updating the database
+                updateItem(item, oldText);
+                // Toast the edited text to display temporarily on screen
+                Toast.makeText(this, item.text, Toast.LENGTH_SHORT).show();
+            } else {
+                // or if it's a new item, add it
+                item.text = data.getExtras().getString("todoItemText");
+                aTodoAdapter.add(item);
+                addItem(item);
+            }
         }
     }
 
@@ -178,8 +181,8 @@ public class MainActivity extends AppCompatActivity {
         // get the checkbox
         final CheckBox checkBox = (CheckBox) view;
         // and get its todoitem
-        LinearLayout linearLayout = (LinearLayout) checkBox.getParent();
-        final TextView textview = (TextView) linearLayout.getChildAt(1);
+        RelativeLayout relativeLayout = (RelativeLayout) checkBox.getParent();
+        final TextView textview = (TextView) relativeLayout.getChildAt(1);
 
         // Wait half a second so they can actually see the check appear before the todoitem is deleted
         Handler handler = new Handler();
@@ -199,7 +202,7 @@ public class MainActivity extends AppCompatActivity {
         Random rand = new Random();
         String[] congratsMessages = {"Congratulations!", "Great!", "Good work!", "Nice one!",
                 "Way to go!", "Another one bites the dust!", "Getting things done!", "Yay!",
-                "All right!", "You did it!", "Good job!"};
+                "All right!", "You did it!", "Good job!", "Awesome!"};
 
         Toast.makeText(this, congratsMessages[rand.nextInt(congratsMessages.length)], Toast.LENGTH_SHORT).show();
     }
