@@ -6,7 +6,6 @@ import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,6 +22,8 @@ import com.tachyonlabs.todoapp.models.Item;
 import com.tachyonlabs.todoapp.utils.TodoItemsDatabaseHelper;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
@@ -33,7 +34,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d("Here", "here");
         setContentView(R.layout.activity_main);
         populateArrayItems();
         lvItems = (ListView) findViewById(R.id.lvItems);
@@ -62,7 +62,6 @@ public class MainActivity extends AppCompatActivity {
                 intent.putExtra("todoItemText", todoItems.get(position).text);
                 intent.putExtra("whichItem", position);
                 intent.putExtra("todoItemDate", todoItems.get(position).date);
-
                 startActivityForResult(intent, REQUEST_CODE);
             }
         });
@@ -74,12 +73,11 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
+                // tap the "+" floating action button to add a new item
                 Intent intent = new Intent(MainActivity.this, EditItemActivity.class);
                 intent.putExtra("addOrEdit", "Add");
                 intent.putExtra("todoItemText", "");
-                intent.putExtra("todoItemDate", "");
+                intent.putExtra("todoItemDate", "No due date");
                 intent.putExtra("whichItem", -1);
                 startActivityForResult(intent, REQUEST_CODE);
             }
@@ -170,6 +168,12 @@ public class MainActivity extends AppCompatActivity {
                 aTodoAdapter.add(item);
                 addItem(item);
             }
+            // and resort the items by due date (or lack of same)
+            Collections.sort(todoItems, new Comparator<Item>() {
+                public int compare(Item first, Item second) {
+                    return first.date.compareTo(second.date);
+                }
+            });
         }
     }
 

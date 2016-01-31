@@ -22,12 +22,38 @@
         android:layout_marginTop="0dp"
         android:hint="@string/add_item" />
 
-    <EditText
+    <RadioGroup
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/etEditDate"
+        android:orientation="horizontal"
         android:layout_marginTop="20dp"
-        android:hint="Enter date" />
+        android:layout_marginBottom="20dp"
+        android:id="@+id/rdgDueDate">
+        <RadioButton
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/no_due_date"
+            android:id="@+id/rdbNoDueDate"
+            android:checked="true" />
+
+        <RadioButton
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/select_due_date"
+            android:id="@+id/rdbSelectDueDate" />
+
+    </RadioGroup>
+
+    <DatePicker
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/dpDatePicker"
+        android:layout_marginTop="-20dp"
+        android:calendarViewShown="false"
+        android:spinnersShown="true"
+        android:datePickerMode="spinner" />
 
     <Button
         android:layout_width="wrap_content"
@@ -35,16 +61,8 @@
         android:text="@string/save"
         android:id="@+id/btnSave"
         android:onClick="saveEditedItem"
-        android:layout_marginTop="20dp"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_centerVertical="true" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="(The next step will be adding a DatePicker instead of the EditText above, but I was at a stopping point and wanted to upload my changes.)"
-        android:id="@+id/textView" />
 
 </LinearLayout>
